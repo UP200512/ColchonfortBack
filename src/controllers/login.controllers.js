@@ -12,15 +12,16 @@ export function ValidatePassword(passwordEN, password) {
 export const login = async (req, res) => {
   try {
     const { email, clave } = req.body;
-    const sql = "select clave from usuarios where email = ?";
+    const sql = "select  t.nombre, clave from usuarios u inner join tipos_de_usuarios t on u.tipo=t.id where email = ?";
     const [rows] = await pool.query(sql, [email]);
     const EcPassword = rows[0].clave;
+  
     // res.send(rows);
     if (ValidatePassword(EcPassword, clave)) {
       let token = jwt.sign({ email }, SECRET, {
         expiresIn: "7d",
       });
-      res.status(200).json({ auth: true, token });
+      res.status(200).json({ auth: true, token, tipo: rows[0].nombre });
     } else res.json({ auth: false, message: "login incorrectamente" });
   } catch {
     return res.status(500).json({ message: "Algo va mal" });

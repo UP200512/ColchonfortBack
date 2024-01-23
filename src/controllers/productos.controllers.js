@@ -1,15 +1,18 @@
-import { pool } from '../db.js'
+import { pool } from '../db.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+// Obtén la ruta del directorio actual del módulo
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export const getProductos = async (req, res) => {
     try {
-        const [rows] = await pool.query('select p.id_producto id_producto, p.nombre nombre, p.descripcion descripcion, p.precio precio, t.nombre tipo, t.id_tipo_prod id_tipo, p.prioridad prioridad from productos_en_venta p left join tipo_de_producto t on p.id_tipo_prod = t.id_tipo_prod;');
+        const [rows] = await pool.query('select p.id_producto id_producto, p.nombre nombre, p.descripcion descripcion, p.precio precio, t.nombre tipo, t.id_tipo_prod id_tipo, p.prioridad prioridad, p.imagen imagen from productos_en_venta p left join tipo_de_producto t on p.id_tipo_prod = t.id_tipo_prod;');
         res.status(200).json(rows);
     } catch (error) {
         return res.status(500).json({
-            message: "something went wrong"
+            message: "Something went wrong"
         });
     }
 }
@@ -18,21 +21,18 @@ export const getImagen = async (req, res) => {
     try {
         const nombreImagen = req.params.nombreImagen;
 
-        // Construye la ruta completa de la imagen
-        const rutaImagen = path.join('../Server_restaurante/src/images/images', nombreImagen);
-        //app.use('/ruta-del-backend-para-imagenes', express.static(rutaImagenes));
+        // Construye la ruta completa de la imagen utilizando __dirname
+        const rutaImagen = path.join(__dirname, '../images/images', nombreImagen);
 
         // Envía la imagen como respuesta al cliente
         res.sendFile(rutaImagen);
-        //res.send(nombreImagen);
-        //res.send(rutaImagen);
-
     } catch (error) {
         return res.status(500).json({
-            message: error + "something went wrong"
+            message: error + " Something went wrong"
         });
     }
 }
+
 
 export const getProductosbyName = async (req, res) => {
     let nombre = req.params.nombre
